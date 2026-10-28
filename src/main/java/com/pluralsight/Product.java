@@ -21,12 +21,11 @@ public class Product {
         return name;
     }
 
-    private  double getPrice() {
+    double getPrice() {
         return  price;
     }
 
     private  String getDepartment() {
         return department;
     }
-
 }
