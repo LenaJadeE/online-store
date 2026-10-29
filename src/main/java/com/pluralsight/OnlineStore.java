@@ -1,5 +1,8 @@
 package com.pluralsight;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -15,7 +18,46 @@ public class OnlineStore {
     public static  void main(String[] args) {
         loadProducts();
 
+        boolean running = true;
+        while (running) {
+            System.out.println();
+            System.out.println(" Welcome to the Online Store ");
+            System.out.println(" 1) Display Products ");
+            System.out.println(" 2) Display Cart ");
+            System.out.println(" 0) Exit ");
+
+            switch (prompt("Choose an option: ")) {
+                case "1" -> displayProducts();
+                case "2" -> displayCart();
+                case  "0" -> running = false;
+                default ->  System.out.println("Please enter 1, 2, or 0.");
+            }
+        }
+        System.out.println("Thanks for visiting.Goodbye!");
     }
 
+    private  static void loadProducts() {
+        try (BufferedReader reader = new BufferedReader(new FileReader(ProductsFile))){
+            reader.readLine();
 
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.isBlank()) {
+                    continue;
+                }
+
+                try {
+                    String[] fields = line.split("\\|");
+                    products.add(new Product(fields[0].trim(), fields[1].trim(), Double.parseDouble(fields[2].trim())));
+                } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+                    System.out.println("Skipping a line that isn't in SKU|Name|Price|Department format: " + line);
+                }
+            }
+        } catch (IOException e) {
+           System.out.println("ERROR: Could not read " + ProductsFile + ". Check that it is in the project folder.");
+        }
+    }
+
+    private static  void displayProducts() {}
 }
+
