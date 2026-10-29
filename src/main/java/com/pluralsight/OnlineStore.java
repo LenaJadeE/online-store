@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
 
 public class OnlineStore {
@@ -82,6 +83,19 @@ public class OnlineStore {
                 case  "0" -> back = true;
                 default ->  System.out.println("Please enter a number from the menu.");
             }
+        }
+    }
+
+    private static void printProducts(List<Product> list) {
+        System.out.println();
+        if (list.isEmpty()) {
+            System.out.println("No products matched your search.");
+            return;
+        }
+        System.out.printf("%-8s %-40s %10s  %s%n", "SKU", "Product", "Price", "Department");
+        for (Product product : list) {
+            System.out.printf(Locale.US, "%-8s %-40s %10s %s%n", product.getSku(), product.getName(), money(product.getPrice(), product.getDep));
+
         }
     }
 }
