@@ -58,6 +58,31 @@ public class OnlineStore {
         }
     }
 
-    private static  void displayProducts() {}
+    private static void displayProducts() {
+        List<Product> shown = products;
+
+        boolean back = false;
+        while (!back) {
+            printProducts(shown);
+
+            System.out.println();
+            System.out.println("1) Search by Product Name");
+            System.out.println("2) Search by Price Range");
+            System.out.println("3) Search by Department");
+            System.out.println("4) Show All Products");
+            System.out.println("5) Add a Product to Cart");
+            System.out.println("0) Go Back");
+
+            switch (prompt("Choose an option: ")) {
+                case "1" -> shown = searchByName();
+                case "2" -> shown = searchByPrice();
+                case "3" -> shown = searchByDepartmen();
+                case "4" -> shown = products;
+                case "5" -> addToCart();
+                case  "0" -> back = true;
+                default ->  System.out.println("Please enter a number from the menu.");
+            }
+        }
+    }
 }
 
