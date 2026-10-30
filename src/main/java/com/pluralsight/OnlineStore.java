@@ -1,8 +1,15 @@
 package com.pluralsight;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -12,11 +19,11 @@ public class OnlineStore {
 
     private static final String ProductsFile = "products.csv";
     private static final String ReceiptsFolder = "Receipts";
-    private static final List<Product> items = new ArrayList<>();
+    private static final List<Product> products = new ArrayList<>();
     private static final ShoppingCart cart = new ShoppingCart();
-    private static final Scanner scanner = new  Scanner(System.in);
+    private static final Scanner scanner = new Scanner(System.in);
 
-    public static  void main(String[] args) {
+    public static void main(String[] args) {
         loadProducts();
 
         boolean running = true;
@@ -30,15 +37,15 @@ public class OnlineStore {
             switch (prompt("Choose an option: ")) {
                 case "1" -> displayProducts();
                 case "2" -> displayCart();
-                case  "0" -> running = false;
-                default ->  System.out.println("Please enter 1, 2, or 0.");
+                case "0" -> running = false;
+                default -> System.out.println("Please enter 1, 2, or 0.");
             }
         }
-        System.out.println("Thanks for visiting.Goodbye!");
+        System.out.println("Thanks for visiting. Goodbye!");
     }
 
-    private  static void loadProducts() {
-        try (BufferedReader reader = new BufferedReader(new FileReader(ProductsFile))){
+    private static void loadProducts() {
+        try (BufferedReader reader = new BufferedReader(new FileReader(ProductsFile))) {
             reader.readLine();
 
             String line;
@@ -49,13 +56,13 @@ public class OnlineStore {
 
                 try {
                     String[] fields = line.split("\\|");
-                    products.add(new Product(fields[0].trim(), fields[1].trim(), Double.parseDouble(fields[2].trim())));
+                    products.add(new Product(fields[0].trim(), fields[1].trim(), Double.parseDouble(fields[2].trim()), fields[3].trim()));
                 } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
                     System.out.println("Skipping a line that isn't in SKU|Name|Price|Department format: " + line);
                 }
             }
         } catch (IOException e) {
-           System.out.println("ERROR: Could not read " + ProductsFile + ". Check that it is in the project folder.");
+            System.out.println("ERROR: Could not read " + ProductsFile + ". Check that it is in the project folder.");
         }
     }
 
@@ -77,11 +84,11 @@ public class OnlineStore {
             switch (prompt("Choose an option: ")) {
                 case "1" -> shown = searchByName();
                 case "2" -> shown = searchByPrice();
-                case "3" -> shown = searchByDepartmen();
+                case "3" -> shown = searchByDepartment();
                 case "4" -> shown = products;
                 case "5" -> addToCart();
-                case  "0" -> back = true;
-                default ->  System.out.println("Please enter a number from the menu.");
+                case "0" -> back = true;
+                default -> System.out.println("Please enter a number from the menu.");
             }
         }
     }
@@ -94,9 +101,52 @@ public class OnlineStore {
         }
         System.out.printf("%-8s %-40s %10s  %s%n", "SKU", "Product", "Price", "Department");
         for (Product product : list) {
-            System.out.printf(Locale.US, "%-8s %-40s %10s %s%n", product.getSku(), product.getName(), money(product.getPrice(), product.getDep));
-
+            System.out.printf(Locale.US, "%-8s %-40s %10s  %s%n",
+                    product.getSku(), product.getName(), money(product.getPrice()), product.getDepartment());
         }
     }
+
+    private static List<Product> searchByName() {
+        String text = prompt("Product name contains: ").toLowerCase();
+
+        List<Product> matches = new ArrayList<>();
+        for (Product product : products) {
+            if (product.getName().toLowerCase().contains(text)) {
+                matches.add(product);
+            }
+        }
+        return matches;
+    }
+
+    private static List<Product> searchByPrice() {
+        Double min = promptForMoney("Minimum price: ");
+        Double max = promptForMoney("Maximum price: ");
+
+        List<Product> matches = new ArrayList<>();
+        if (min == null || max == null) {
+            System.out.println("Prices must be numbers, like 25 or 99.99.");
+            return matches;
+        }
+
+        for (Product product : products) {
+            if (product.getPrice() >= min && product.getPrice() <= max) {
+                matches.add(product);
+            }
+        }
+        return matches;
+    }
+
+    private static List<Product> searchByDepartment() {
+        String text = prompt("Department contains: ").toLowerCase();
+
+        List<Product> matches = new ArrayList<>();
+        for (Product product : products) {
+            if (product.getDepartment().toLowerCase().contains(text)) {
+                matches.add(product);
+            }
+        }
+        return matches;
+    }
+
 }
 
