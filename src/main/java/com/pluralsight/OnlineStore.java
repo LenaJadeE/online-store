@@ -225,9 +225,45 @@ public class OnlineStore {
         }
     }
 
+    private static boolean checkOut() {
+        if (cart.isEmpty()) {
+            System.out.println("Your cart is empty, so there is nothing to check out.");
+            return false;
+        }
+
+        double total = cart.getTotal();
+        System.out.println();
+        System.out.println("Total owed: " + money(total));
+
+        Double payment = promptForMoney("Enter your cash payment: ");
+        if (payment = null) {
+            System.out.println("Payment must be a number, like 250 or 249.99.");
+            return false;
+        }
+
+        if (payment < total) {
+            System.out.println("That isn't enough to cover " + money(total) + ". Your cart has been kept.");
+            return false;
+        }
+    }
 
 
+    private static String prompt(String message) {
+        System.out.print(message);
+        return scanner.nextLine().trim();
+    }
 
+    private static Double promptForMoney(String message) {
+        try {
+            return  Double.parseDouble(prompt(message).replace("$", ""));
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    private static String money(double amount) {
+        return String.format(Locale.US, "%.2f", amount);
+    }
 
 }
 
