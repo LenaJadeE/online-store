@@ -245,6 +245,13 @@ public class OnlineStore {
             System.out.println("That isn't enough to cover " + money(total) + ". Your cart has been kept.");
             return false;
         }
+
+        LocalDateTime now = LocalDateTime.now();
+        String receipt = buildReceipt(now, total, payment);
+
+        System.out.println();
+        System.out.print(receipt);
+        saveReceipt(now, r)
     }
 
 
