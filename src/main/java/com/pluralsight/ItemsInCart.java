@@ -5,23 +5,23 @@ public class ItemsInCart {
     private final Product product;
     private int quantity;
 
-    private ItemsInCart(Product product, int quantity) {
+    public ItemsInCart(Product product, int quantity) {
         this.product = product;
         this.quantity = quantity;
     }
 
-    private Product getProduct() {
+    public Product getProduct() {
         return product;
     }
-    private int getQuantity() {
+    public int getQuantity() {
         return quantity;
     }
 
-    private void addOne() {
+    public void addOne() {
         quantity++;
     }
 
-    private double getLineTotal() {
+    public double getLineTotal() {
         return product.getPrice() * quantity;
     }
 }

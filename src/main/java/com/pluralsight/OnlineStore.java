@@ -204,13 +204,30 @@ public class OnlineStore {
 
     private static void printLineItems(PrintStream out) {
         out.printf("%-8s %-40s %5s %10s %10s%n", "SKU", "Product", "Qty", "Price", "Subtotal");
-        for (CartItem item : cart.getItems()) {
+        for (ItemsInCart item : cart.getItems()) {
             out.printf("%-8s %-40s %5d %10s %10s%n",
                     item.getProduct().getSku(), item.getProduct().getName(), item.getQuantity(),
                     money(item.getProduct().getPrice()), money(item.getLineTotal()));
         }
     }
 
-    private
+    private static void removeFromCart(){
+        if (cart.isEmpty()) {
+            System.out.println("Your cart is empty, so there is nothing to remove.");
+            return;
+        }
+
+        String sku = prompt ("Enter the SKU of the product to remove: ");
+        if (cart.remove(sku)) {
+            System.out.println("Removed " + sku.toUpperCase() + " from your cart.");
+        } else  {
+            System.out.println("That product isn't in your cart.");
+        }
+    }
+
+
+
+
+
 }
 

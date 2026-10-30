@@ -7,7 +7,7 @@ import java.util.Map;
 public class ShoppingCart {
     private final Map<String, ItemsInCart> items = new LinkedHashMap<>();
 
-    private void add(Product product) {
+    public void add(Product product) {
         ItemsInCart existing = items.get(product.getSku());
 
         if (existing != null) {
@@ -17,15 +17,15 @@ public class ShoppingCart {
         }
     }
 
-    private boolean remove(String sku) {
+    public boolean remove(String sku) {
         return  items.remove(sku.toUpperCase()) != null;
     }
 
-    private Collection<ItemsInCart> getItems() {
+    public Collection<ItemsInCart> getItems() {
         return items.values();
     }
 
-    private double getTotal() {
+    public double getTotal() {
         double total = 0;
         for (ItemsInCart item : items.values()) {
             total += item.getLineTotal();
@@ -33,11 +33,11 @@ public class ShoppingCart {
         return total;
     }
 
-    private boolean isEmpty() {
+    public boolean isEmpty() {
         return  items.isEmpty();
     }
 
-    private void clear () {
+    public void clear () {
         items.clear();
     }
 
