@@ -148,5 +148,69 @@ public class OnlineStore {
         return matches;
     }
 
+    private static void addToCart() {
+        String sku = prompt("Enter the SKU of the product to add: ");
+        Product product = findBySku(sku);
+
+        if (product == null) {
+            System.out.println("No product has the SKU " + sku + ".");
+            return;
+        }
+
+        cart.add(product);
+        System.out.println("Added " + product.getName() + " to your cart.");
+    }
+
+    private static Product findBySku(String sku) {
+        for (Product product : products) {
+            if (product.getSku().equalsIgnoreCase(sku)) {
+                return product;
+            }
+        }
+        return null;
+    }
+
+    private static void displayCart() {
+        boolean back = false;
+        while (!back) {
+            printCart();
+
+            System.out.println();
+            System.out.println("1) Check Out");
+            System.out.println("2) Remove a Product from Cart");
+            System.out.println("0) Go Back");
+
+            switch (prompt("Choose an option: ")) {
+                case "1" -> back = checkOut();
+                case "2" -> removeFromCart();
+                case "0" -> back = true;
+                default -> System.out.println("Please enter a number from the menu.");
+            }
+        }
+    }
+
+    private static void printCart() {
+        System.out.println();
+        System.out.println(" Your Cart ");
+
+        if (cart.isEmpty()) {
+            System.out.println("Your cart is empty.");
+            return;
+        }
+
+        printLineItems(System.out);
+        System.out.println("Total: " + money(cart.getTotal()));
+    }
+
+    private static void printLineItems(PrintStream out) {
+        out.printf("%-8s %-40s %5s %10s %10s%n", "SKU", "Product", "Qty", "Price", "Subtotal");
+        for (CartItem item : cart.getItems()) {
+            out.printf("%-8s %-40s %5d %10s %10s%n",
+                    item.getProduct().getSku(), item.getProduct().getName(), item.getQuantity(),
+                    money(item.getProduct().getPrice()), money(item.getLineTotal()));
+        }
+    }
+
+    private
 }
 
