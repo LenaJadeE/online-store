@@ -1,13 +1,14 @@
 package com.pluralsight;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Scanner;
 
 public class OnlineStore {
@@ -96,7 +97,7 @@ public class OnlineStore {
         }
         System.out.printf("%-8s %-40s %10s  %s%n", "SKU", "Product", "Price", "Department");
         for (Product product : list) {
-            System.out.printf(Locale.US, "%-8s %-40s %10s  %s%n",
+            System.out.printf("%-8s %-40s %10s  %s%n",
                     product.getSku(), product.getName(), money(product.getPrice()), product.getDepartment());
         }
     }
@@ -193,11 +194,11 @@ public class OnlineStore {
             return;
         }
 
-        printLineItems(System.out);
+        printLineItems();
         System.out.println("Total: " + money(cart.getTotal()));
     }
 
-    private static void printLineItems(PrintStream out) {
+    private static void printLineItems() {
         System.out.printf("%-8s %-40s %5s %10s %10s%n", "SKU", "Product", "Qty", "Price", "Subtotal");
         for (ItemsInCart item : cart.getItems()) {
             System.out.printf("%-8s %-40s %5d %10s %10s%n",
@@ -252,15 +253,15 @@ public class OnlineStore {
         return true;
     }
 
-    private static String buildReceipt(LocalDateTime now, Double total, Double payment) {
+    private static String buildReceipt(LocalDateTime now, double total, double payment) {
         StringBuilder receipt = new StringBuilder();
         receipt.append(" Sales Receipt \n");
         receipt.append("Order Date: ").append(now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))).append("\n\n");
-        receipt.append(String.format(Locale.US, "%-8s %-40s %5s %10s %10s%n",
+        receipt.append(String.format("%-8s %-40s %5s %10s %10s%n",
                 "SKU", "Product", "Qty", "Price", "Subtotal"));
 
         for (ItemsInCart item : cart.getItems()) {
-            receipt.append(String.format(Locale.US, "%-8s %-40s %5d %10s %10s%n",
+            receipt.append(String.format("%-8s %-40s %5d %10s %10s%n",
                     item.getProduct().getSku(), item.getProduct().getName(), item.getQuantity(),
                     money(item.getProduct().getPrice()), money(item.getLineTotal())));
         }
@@ -275,12 +276,8 @@ public class OnlineStore {
     private static void saveReceipt(LocalDateTime now, String receipt) {
         String fileName = now.format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss")) + ".txt";
 
-        try {
-            Files.createDirectories(Path.of(RECEIPTS_FOLDER));
-
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(RECEIPTS_FOLDER + "/" + fileName))) {
-                writer.write(receipt);
-            }
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(RECEIPTS_FOLDER + "/" + fileName))) {
+            writer.write(receipt);
             System.out.println("Receipt saved to " + RECEIPTS_FOLDER + "/" + fileName);
         } catch (IOException e) {
             System.out.println("Could not save the receipt file: " + e.getMessage());
@@ -301,7 +298,6 @@ public class OnlineStore {
     }
 
     private static String money(double amount) {
-        return String.format(Locale.US, "%.2f", amount);
+        return String.format("$%.2f", amount);
     }
 }
-
