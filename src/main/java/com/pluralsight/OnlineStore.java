@@ -1,11 +1,6 @@
 package com.pluralsight;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
@@ -17,8 +12,8 @@ import java.util.Scanner;
 
 public class OnlineStore {
 
-    private static final String ProductsFile = "products.csv";
-    private static final String ReceiptsFolder = "Receipts";
+    private static final String PRODUCTS_FILE = "products.csv";
+    private static final String RECEIPTS_FOLDER = "Receipts";
     private static final List<Product> products = new ArrayList<>();
     private static final ShoppingCart cart = new ShoppingCart();
     private static final Scanner scanner = new Scanner(System.in);
@@ -45,7 +40,7 @@ public class OnlineStore {
     }
 
     private static void loadProducts() {
-        try (BufferedReader reader = new BufferedReader(new FileReader(ProductsFile))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(PRODUCTS_FILE))) {
             reader.readLine();
 
             String line;
@@ -62,7 +57,7 @@ public class OnlineStore {
                 }
             }
         } catch (IOException e) {
-            System.out.println("ERROR: Could not read " + ProductsFile + ". Check that it is in the project folder.");
+            System.out.println("ERROR: Could not read " + PRODUCTS_FILE + ". Check that it is in the project folder.");
         }
     }
 
@@ -203,24 +198,24 @@ public class OnlineStore {
     }
 
     private static void printLineItems(PrintStream out) {
-        out.printf("%-8s %-40s %5s %10s %10s%n", "SKU", "Product", "Qty", "Price", "Subtotal");
+        System.out.printf("%-8s %-40s %5s %10s %10s%n", "SKU", "Product", "Qty", "Price", "Subtotal");
         for (ItemsInCart item : cart.getItems()) {
-            out.printf("%-8s %-40s %5d %10s %10s%n",
+            System.out.printf("%-8s %-40s %5d %10s %10s%n",
                     item.getProduct().getSku(), item.getProduct().getName(), item.getQuantity(),
                     money(item.getProduct().getPrice()), money(item.getLineTotal()));
         }
     }
 
-    private static void removeFromCart(){
+    private static void removeFromCart() {
         if (cart.isEmpty()) {
             System.out.println("Your cart is empty, so there is nothing to remove.");
             return;
         }
 
-        String sku = prompt ("Enter the SKU of the product to remove: ");
+        String sku = prompt("Enter the SKU of the product to remove: ");
         if (cart.remove(sku)) {
             System.out.println("Removed " + sku.toUpperCase() + " from your cart.");
-        } else  {
+        } else {
             System.out.println("That product isn't in your cart.");
         }
     }
@@ -236,7 +231,7 @@ public class OnlineStore {
         System.out.println("Total owed: " + money(total));
 
         Double payment = promptForMoney("Enter your cash payment: ");
-        if (payment = null) {
+        if (payment == null) {
             System.out.println("Payment must be a number, like 250 or 249.99.");
             return false;
         }
@@ -251,9 +246,46 @@ public class OnlineStore {
 
         System.out.println();
         System.out.print(receipt);
-        saveReceipt(now, r)
+        saveReceipt(now, receipt);
+
+        cart.clear();
+        return true;
     }
 
+    private static String buildReceipt(LocalDateTime now, Double total, Double payment) {
+        StringBuilder receipt = new StringBuilder();
+        receipt.append(" Sales Receipt \n");
+        receipt.append("Order Date: ").append(now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))).append("\n\n");
+        receipt.append(String.format(Locale.US, "%-8s %-40s %5s %10s %10s%n",
+                "SKU", "Product", "Qty", "Price", "Subtotal"));
+
+        for (ItemsInCart item : cart.getItems()) {
+            receipt.append(String.format(Locale.US, "%-8s %-40s %5d %10s %10s%n",
+                    item.getProduct().getSku(), item.getProduct().getName(), item.getQuantity(),
+                    money(item.getProduct().getPrice()), money(item.getLineTotal())));
+        }
+
+        receipt.append("\n");
+        receipt.append("Sales Total:  ").append(money(total)).append("\n");
+        receipt.append("Amount Paid:  ").append(money(payment)).append("\n");
+        receipt.append("Change Given: ").append(money(payment - total)).append("\n");
+        return receipt.toString();
+    }
+
+    private static void saveReceipt(LocalDateTime now, String receipt) {
+        String fileName = now.format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss")) + ".txt";
+
+        try {
+            Files.createDirectories(Path.of(RECEIPTS_FOLDER));
+
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(RECEIPTS_FOLDER + "/" + fileName))) {
+                writer.write(receipt);
+            }
+            System.out.println("Receipt saved to " + RECEIPTS_FOLDER + "/" + fileName);
+        } catch (IOException e) {
+            System.out.println("Could not save the receipt file: " + e.getMessage());
+        }
+    }
 
     private static String prompt(String message) {
         System.out.print(message);
@@ -262,7 +294,7 @@ public class OnlineStore {
 
     private static Double promptForMoney(String message) {
         try {
-            return  Double.parseDouble(prompt(message).replace("$", ""));
+            return Double.parseDouble(prompt(message).replace("$", ""));
         } catch (NumberFormatException e) {
             return null;
         }
@@ -271,6 +303,5 @@ public class OnlineStore {
     private static String money(double amount) {
         return String.format(Locale.US, "%.2f", amount);
     }
-
 }
 
